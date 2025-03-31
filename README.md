@@ -4,4 +4,12 @@ This project leverages machine learning to provide personalized career guidance.
 How to Use:
 1. Run the following commend in the terminal
    --> Python app.py
-2. Run the index.html file as live server.   
+2. Run the index.html file as live server.
+
+
+This project is a Team Project:
+Members:
+->Nripen Kumar
+->Rajat Kumar
+->Yashasvi Goyal
+->Amit
