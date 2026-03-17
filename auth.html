@@ -104,8 +104,10 @@
         authForm.querySelector('button').textContent = isSignUp ? 'Create Account' : 'Sign In';
     });
 
-    // Handle form submission
-    authForm.addEventListener('submit', (e) => {
+    // Handle submit button click explicitly
+    const submitBtn = authForm.querySelector('button');
+    submitBtn.addEventListener('click', (e) => {
+        // Only run our logic, don't let the browser validate empty hidden fields
         e.preventDefault();
         
         const email = document.getElementById('email').value;
@@ -119,6 +121,11 @@
             if (!validateSignIn(email, password)) return;
             signIn(email, password);
         }
+    });
+
+    // Also prevent raw form submission
+    authForm.addEventListener('submit', (e) => {
+        e.preventDefault();
     });
 
     function validateSignUp(username, email, password) {
