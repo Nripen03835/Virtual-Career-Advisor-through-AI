@@ -5,6 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 import joblib
 import os
+import requests
 
 app = Flask(__name__, static_url_path='', static_folder='.', template_folder='.')
 
@@ -108,6 +109,51 @@ def recommend():
             'recommendations': recommendations
         })
     
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    try:
+        data = request.json
+        messages = data.get('messages', [])
+        
+        if not messages:
+            return jsonify({'success': False, 'error': 'No messages provided'})
+
+        # Get API key from environment variable (with fallback for local dev)
+        api_key = os.environ.get('GROQ_API_KEY', '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')
+        
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        request_body = {
+            'model': 'llama3-70b-8192',
+            'messages': messages,
+            'temperature': 0.7,
+            'max_tokens': 1024
+        }
+        
+        response = requests.post(
+            'https://api.groq.com/openai/v1/chat/completions',
+            headers=headers,
+            json=request_body
+        )
+        
+        if response.status_code != 200:
+            return jsonify({'success': False, 'error': f'Groq API error: {response.text}'})
+            
+        result = response.json()
+        return jsonify({
+            'success': True,
+            'message': result['choices'][0]['message']['content']
+        })
+        
     except Exception as e:
         return jsonify({
             'success': False,

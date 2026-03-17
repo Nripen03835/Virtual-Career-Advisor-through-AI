@@ -123,9 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listener to microphone button
     micButton.addEventListener('click', toggleListening);
 
-    // Groq API Key
-    const GROQ_API_KEY = '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';
-
+    // The GROQ API key is now securely stored in the backend environment variables
+    
     // Chat visibility handlers
     if (chatLauncher) {
         chatLauncher.addEventListener('click', () => {
@@ -311,16 +310,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to send message to Groq Cloud API
+    // Function to send message to backend (which securely contacts Groq)
     async function sendToGroqAPI(message) {
         try {
-            const apiURL = 'https://api.groq.com/openai/v1/chat/completions';
-
-            const headers = {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
-                'Content-Type': 'application/json'
-            };
-
             // Prepare the full conversation history for context
             const messages = [
                 {
@@ -331,20 +323,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     When appropriate, organize your responses with bullet points for better readability.
                     Limit your responses to 3-4 paragraphs maximum to maintain chat usability.`
                 },
-                ...chatHistory
+                ...chatHistory,
+                { role: 'user', content: message }
             ];
 
-            const requestBody = {
-                model: 'llama3-70b-8192',  // Groq's LLaMA 3 70B model
-                messages: messages,
-                temperature: 0.7,
-                max_tokens: 1024
-            };
-
-            const response = await fetch(apiURL, {
+            const response = await fetch('/chat', {
                 method: 'POST',
-                headers: headers,
-                body: JSON.stringify(requestBody)
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ messages: messages })
             });
 
             if (!response.ok) {
@@ -352,10 +340,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            return data.choices[0].message.content;
+            
+            if (data.success) {
+                return data.message;
+            } else {
+                throw new Error(data.error || 'Unknown error occurred');
+            }
 
         } catch (error) {
-            console.error('Error calling Groq API:', error);
+            console.error('Error calling backend chat API:', error);
             throw error;
         }
     }
