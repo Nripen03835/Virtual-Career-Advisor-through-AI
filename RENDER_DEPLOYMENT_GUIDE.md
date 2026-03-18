@@ -39,7 +39,7 @@ git push -u origin main
 5. Select the **Free** instance type.
 6. Click **Advanced**, and add an Environment Variable (optional but recommended for older scikit-learn versions):
    - Key: `PYTHON_VERSION`
-   - Value: `3.9.0`
+   - Value: `3.13.0`
    - Key: `GROQ_API_KEY`
    - Value: `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` (or your actual key)
 7. Click **Create Web Service**.
